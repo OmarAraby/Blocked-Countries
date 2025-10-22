@@ -1,3 +1,4 @@
+using BlockedCountries.API.BackgroundServices;
 using BlockedCountries.API.Repositories.InMemory;
 using BlockedCountries.API.Repositories.Interfaces;
 using BlockedCountries.API.Services.Implementations;
@@ -18,13 +19,22 @@ builder.Services.AddOpenApi();
 // FluentValidation
 builder.Services.AddFluentValidationAutoValidation(); 
 builder.Services.AddValidatorsFromAssemblyContaining<BlockCountryRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<TemporalBlockRequestValidator>();
+
 //builder.Services.AddFluentValidationClientsideAdapters();
 
 
 
 // Dependency Injection setup
 builder.Services.AddSingleton<IBlockedCountriesRepository, BlockedCountriesRepository>();
+builder.Services.AddSingleton<ITemporalBlocksRepository, TemporalBlocksRepository>();
+
 builder.Services.AddScoped<ICountryService, CountryService>();
+builder.Services.AddScoped<ITemporalBlockService, TemporalBlockService>();
+
+
+// background service 
+builder.Services.AddHostedService<TemporalBlockCleanupService>();
 
 var app = builder.Build();
 

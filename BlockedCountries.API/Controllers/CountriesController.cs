@@ -13,9 +13,11 @@ namespace BlockedCountries.API.Controllers
     public class CountriesController : ControllerBase
     {
         private readonly ICountryService _countryService;
-        public CountriesController(ICountryService countryService)
+        private readonly ITemporalBlockService _tempBlockService;
+        public CountriesController(ICountryService countryService, ITemporalBlockService tempBlockService)
         {
-            _countryService= countryService;
+            _countryService = countryService;
+            _tempBlockService = tempBlockService;
         }
 
         [HttpPost("block")]
@@ -53,6 +55,24 @@ namespace BlockedCountries.API.Controllers
             return TypedResults.Ok(result);
         }
 
+
+        // temp block 
+        [HttpPost("temporal-block")]
+        public async Task<Results<Ok<ApiResponse>, BadRequest<ApiResponse>, Conflict<ApiResponse>>> TempBlock(TemporalBlockRequestDto requestDto)
+        {
+            var result = _tempBlockService.BlockTemporarily(requestDto);
+
+
+            if (!result.Success)
+            {
+                if (result.Message.Contains("already temporarily blocked"))
+                    return TypedResults.Conflict(result);
+                else
+                    return TypedResults.BadRequest(result); 
+            }
+
+            return TypedResults.Ok(result);
+        }
 
     }
 }
