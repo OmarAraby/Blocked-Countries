@@ -1,20 +1,23 @@
-﻿namespace BlockedCountries.API.Helpers
+﻿using System.Net;
+
+namespace BlockedCountries.API.Helpers
 {
     public static class IpAddressHelper
     {
-        public static string GetClientIpAddress(HttpContext context)
+        public static async Task<string> GetClientIpAddressAsync(HttpContext context)
         {
-            // Try X-Forwarded-For (for reverse proxies/Load balancers)
+            //  Try X-Forwarded-For (reverse proxy, load balancer)
             if (context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwarded))
             {
-                var firstIp = forwarded.ToString().Split(',', StringSplitOptions.RemoveEmptyEntries)
+                var firstIp = forwarded.ToString()
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .FirstOrDefault()?.Trim();
 
                 if (!string.IsNullOrEmpty(firstIp) && IsValidPublicIpAddress(firstIp))
                     return firstIp;
             }
 
-            // Try X-Real-IP
+            // Try X-Real-IP (common header in nginx / proxies)
             if (context.Request.Headers.TryGetValue("X-Real-IP", out var realIp))
             {
                 var ip = realIp.ToString().Trim();
@@ -22,46 +25,41 @@
                     return ip;
             }
 
-            // Fall back to RemoteIpAddress
+            // Fall back to connection remote IP
             var remoteIp = context.Connection.RemoteIpAddress;
             if (remoteIp != null)
             {
-                // Handle IPv4-mapped IPv6 addresses and convert to IPv4 if possible
+                // Handle IPv4-mapped IPv6
                 if (remoteIp.IsIPv4MappedToIPv6)
                     remoteIp = remoteIp.MapToIPv4();
 
                 var ipString = remoteIp.ToString();
 
-                // Convert IPv6 localhost to IPv4
+                // Handle IPv6 localhost (::1)
                 if (ipString == "::1")
-                    return "127.0.0.1";
+                    ipString = "127.0.0.1";
 
                 if (IsValidPublicIpAddress(ipString))
                     return ipString;
             }
 
-            return "127.0.0.1"; // fallback for localhost
+            //  Fallback: fetch the public IP of the current machine via external service
+            return await GetPublicIpAsync();
         }
 
         public static bool IsValidIpAddress(string ip)
         {
-            return System.Net.IPAddress.TryParse(ip, out _);
+            return IPAddress.TryParse(ip, out _);
         }
 
         public static bool IsPrivateIpAddress(string ip)
         {
-            if (!System.Net.IPAddress.TryParse(ip, out var address))
-                return true; // Treat invalid as private
+            if (!IPAddress.TryParse(ip, out var address))
+                return true; // Treat invalid as private for safety
 
-            // Handle IPv6 localhost
-            if (address.Equals(System.Net.IPAddress.IPv6Loopback))
-                return true;
+            if (IPAddress.IsLoopback(address)) return true;
 
-            // Handle IPv4 localhost
-            if (System.Net.IPAddress.IsLoopback(address))
-                return true;
-
-            // Check for private IP ranges (IPv4)
+            // Only handle IPv4 ranges manually
             if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
             {
                 var bytes = address.GetAddressBytes();
@@ -85,6 +83,23 @@
         public static bool IsValidPublicIpAddress(string ip)
         {
             return IsValidIpAddress(ip) && !IsPrivateIpAddress(ip);
+        }
+
+        public static async Task<string> GetPublicIpAsync()
+        {
+            try
+            {
+                using var http = new HttpClient();
+                var ip = await http.GetStringAsync("https://api.ipify.org");
+                if (IsValidIpAddress(ip))
+                    return ip.Trim();
+            }
+            catch
+            {
+                // ignore errors and fallback
+            }
+
+            return "127.0.0.1"; // fallback if all fails
         }
     }
 }
