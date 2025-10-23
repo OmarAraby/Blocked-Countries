@@ -10,6 +10,7 @@ namespace BlockedCountries.API.Services.Interfaces
         ApiResponse BlockCountry(BlockCountryRequestDto request);
         ApiResponse UnblockCountry(string countryCode);
         ApiResponse<PageList<BlockedCountryDto>> GetBlockedCountries(CountryQueryParams queryParams);
+        bool IsCountryBlocked(string countryCode);
 
     }
 }

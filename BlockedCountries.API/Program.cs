@@ -26,11 +26,21 @@ builder.Services.AddValidatorsFromAssemblyContaining<TemporalBlockRequestValidat
 
 
 // Dependency Injection setup
+
+// repos
 builder.Services.AddSingleton<IBlockedCountriesRepository, BlockedCountriesRepository>();
 builder.Services.AddSingleton<ITemporalBlocksRepository, TemporalBlocksRepository>();
+builder.Services.AddSingleton<IBlockedAttemptsLogRepository, BlockedAttemptsLogRepository>();
 
+// services
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<ITemporalBlockService, TemporalBlockService>();
+builder.Services.AddScoped<IBlockedAttemptsLogger, BlockedAttemptsLogger>();
+builder.Services.AddHttpClient<IGeolocationService, GeolocationService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.ipgeolocation.io/");
+});
+
 
 
 // background service 

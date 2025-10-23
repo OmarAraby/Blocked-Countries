@@ -72,5 +72,11 @@ namespace BlockedCountries.API.Services.Implementations
             _repo.Remove(countryCode);
             return ApiResponse.SuccessResponse("Country unBlocked Successfully");
         }
+
+        public bool IsCountryBlocked(string countryCode)
+        {
+            return _repo.Exists(countryCode);
+        }
+
     }
 }
