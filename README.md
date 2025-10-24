@@ -3,6 +3,9 @@
 
 > A clean architecture .NET 9 Web API that manages **country blocking**, **IP-based restriction**, and **geolocation lookup** with **in-memory storage** and **background cleanup service**.
 
+##### 🧅 Onion Architecture Version
+[🔗 View Onion Architecture Branch](https://github.com/OmarAraby/Blocked-Countries/tree/onion-arch)
+
 ---
 
 ### 🚀 **Overview**
