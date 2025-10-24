@@ -15,4 +15,9 @@
     <PackageReference Include="Scalar.AspNetCore" Version="2.9.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BlockedCountries.Application\BlockedCountries.Application.csproj" />
+    <ProjectReference Include="..\BlockedCountries.Infrastructure\BlockedCountries.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

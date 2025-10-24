@@ -1,7 +1,8 @@
-﻿using BlockedCountries.API.DTOs.Respones;
-using BlockedCountries.API.Helpers.GeneralResult;
-using BlockedCountries.API.Helpers.Pagination;
-using BlockedCountries.API.Services.Interfaces;
+﻿
+using BlockedCountries.Application.DTOs.Respones;
+using BlockedCountries.Application.Helpers.GeneralResult;
+using BlockedCountries.Application.Helpers.Pagination;
+using BlockedCountries.Application.Interfaces;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 

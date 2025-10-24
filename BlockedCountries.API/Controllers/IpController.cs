@@ -1,8 +1,8 @@
-﻿using BlockedCountries.API.DTOs.Respones;
-using BlockedCountries.API.Helpers;
-using BlockedCountries.API.Helpers.GeneralResult;
-using BlockedCountries.API.Repositories.Interfaces;
-using BlockedCountries.API.Services.Interfaces;
+﻿
+using BlockedCountries.Application.DTOs.Respones;
+using BlockedCountries.Application.Helpers;
+using BlockedCountries.Application.Helpers.GeneralResult;
+using BlockedCountries.Application.Interfaces;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -40,6 +40,7 @@ namespace BlockedCountries.API.Controllers
             {
                 Ip = geo.Ip,
                 Location = geo.Location
+
             };
 
             return TypedResults.Ok(ApiResponse<GeolocationResponseDto>.SuccessResponse(response));
